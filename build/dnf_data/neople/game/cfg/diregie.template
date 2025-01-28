@@ -73,12 +73,12 @@ master_db_acc = game
 master_db_pwd = DEC_GAME_PWD
 master_db_name = d_taiwan
 
-server_group = 1
+server_group = 2
 fatigue_time = 06
 avatar_time = 60
 max_user_num = 600
 
-db_tbl_file = db_info_tw_siroco
+db_tbl_file = db_info_tw_diregie
 
 header_classification = 0 1
 header_msg_no = 5 1

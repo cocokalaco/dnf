@@ -73,7 +73,7 @@ master_db_acc = game
 master_db_pwd = DEC_GAME_PWD
 master_db_name = d_taiwan
 
-server_group = 2
+server_group = 1
 fatigue_time = 06
 avatar_time = 60
 max_user_num = 600

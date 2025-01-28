@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # 大区对应名称
-export SERVER_GROUP_NAME_1="diregie"
-export SERVER_GROUP_NAME_2="cain"
+export SERVER_GROUP_NAME_1="cain"
+export SERVER_GROUP_NAME_2="diregie"
 export SERVER_GROUP_NAME_3="siroco"
 # 去除环境变量前后的单双引号
 export SERVER_GROUP=$(echo $SERVER_GROUP | sed "s/[\'\"]//g")
