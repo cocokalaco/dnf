@@ -8,7 +8,7 @@ export SERVER_GROUP_NAME_3="siroco"
 export SERVER_GROUP=$(echo $SERVER_GROUP | sed "s/[\'\"]//g")
 export MAIN_MYSQL_HOST=$(echo $MAIN_MYSQL_HOST | sed "s/[\'\"]//g")
 export MAIN_MYSQL_PORT=$(echo $MAIN_MYSQL_PORT | sed "s/[\'\"]//g")
-export MAIN_MYSQL_ROOT_PASSWPRD=$(echo $MAIN_MYSQL_ROOT_PASSWPRD | sed "s/[\'\"]//g")
+export MAIN_MYSQL_ROOT_PASSWORD=$(echo $MAIN_MYSQL_ROOT_PASSWORD | sed "s/[\'\"]//g")
 export MAIN_MYSQL_GAME_ALLOW_IP=$(echo $MAIN_MYSQL_GAME_ALLOW_IP | sed "s/[\'\"]//g")
 export MYSQL_HOST=$(echo $MYSQL_HOST | sed "s/[\'\"]//g")
 export MYSQL_PORT=$(echo $MYSQL_PORT | sed "s/[\'\"]//g")
@@ -31,14 +31,54 @@ export NB_SETUP_KEY=$(echo $NB_SETUP_KEY | sed "s/[\'\"]//g")
 export NB_MANAGEMENT_URL=$(echo $NB_MANAGEMENT_URL | sed "s/[\'\"]//g")
 # 校验用户选择的大区
 SERVER_GROUP_NAME_VAR="SERVER_GROUP_NAME_$SERVER_GROUP"
-SERVER_GROUP_NAME=${!SERVER_GROUP_NAME_VAR}
+export SERVER_GROUP_NAME=${!SERVER_GROUP_NAME_VAR}
 if [[ "$SERVER_GROUP" == "1" || "$SERVER_GROUP" == "2" || "$SERVER_GROUP" == "3" ]]; then
     echo "server group is $SERVER_GROUP, server group name is $SERVER_GROUP_NAME"
 else
     echo "invalid server group: $SERVER_GROUP"
     exit -1
 fi
-export SERVER_GROUP_NAME
+
+# 定义主数据库局部变量
+CUR_MAIN_DB_HOST=$MAIN_MYSQL_HOST
+CUR_MAIN_DB_PORT=$MAIN_MYSQL_PORT
+CUR_MAIN_DB_ROOT_PASSWORD=$MAIN_MYSQL_ROOT_PASSWORD
+CUR_MAIN_DB_GAME_ALLOW_IP=$MAIN_MYSQL_GAME_ALLOW_IP
+
+# 本地数据库地址配置
+if [ -z "$MAIN_MYSQL_HOST" ] && [ -z "$MAIN_MYSQL_PORT" ] && [ -z "$MYSQL_HOST" ] && [ -z "$MYSQL_PORT" ];then
+  CUR_MAIN_DB_HOST=127.0.0.1
+  CUR_MAIN_DB_PORT=4000
+  CUR_MAIN_DB_ROOT_PASSWORD=$DNF_DB_ROOT_PASSWORD
+  CUR_MAIN_DB_GAME_ALLOW_IP=127.0.0.1
+fi
+
+# 导出环境变量
+export CUR_MAIN_DB_HOST
+export CUR_MAIN_DB_PORT
+export CUR_MAIN_DB_ROOT_PASSWORD
+export CUR_MAIN_DB_GAME_ALLOW_IP
+echo "main db: $CUR_MAIN_DB_HOST:$CUR_MAIN_DB_PORT allow ip $CUR_MAIN_DB_GAME_ALLOW_IP"
+
+# 针对大区数据库定义局部变量
+CUR_SG_DB_HOST=$MYSQL_HOST
+CUR_SG_DB_PORT=$MYSQL_PORT
+CUR_SG_DB_ROOT_PASSWORD=$DNF_DB_ROOT_PASSWORD
+CUR_SG_DB_GAME_ALLOW_IP=$MYSQL_GAME_ALLOW_IP
+
+# 本地数据库地址配置
+if [ -z "$MAIN_MYSQL_HOST" ] && [ -z "$MAIN_MYSQL_PORT" ] && [ -z "$MYSQL_HOST" ] && [ -z "$MYSQL_PORT" ];then
+  CUR_SG_DB_HOST=127.0.0.1
+  CUR_SG_DB_PORT=4000
+  CUR_SG_DB_GAME_ALLOW_IP=127.0.0.1
+fi
+
+# 导出环境变量
+export CUR_SG_DB_HOST
+export CUR_SG_DB_PORT
+export CUR_SG_DB_ROOT_PASSWORD
+export CUR_SG_DB_GAME_ALLOW_IP
+echo "server group db: $CUR_SG_DB_HOST:$CUR_SG_DB_PORT allow ip $CUR_SG_DB_GAME_ALLOW_IP"
 echo "will use server group: $SERVER_GROUP_NAME"
 # TODO进行一些强校验,提前退出
 
@@ -64,9 +104,6 @@ for i in {1..52}; do
 done
 # 清理/dp2目录
 rm -rf /dp2
-# 重设supervisor web网页密码
-sed -i "s/^username=.*/username=$WEB_USER/" /etc/supervisord.conf
-sed -i "s/^password=.*/password=$WEB_PASS/" /etc/supervisord.conf
 # 给supervisor扩展文件赋予权限[可用于扩展第三方网关]
 mkdir -p /data/conf.d
 # 创建DP目录
@@ -144,7 +181,12 @@ sed -i "s/GM_ACCOUNT/$GM_ACCOUNT/g" `find /data -name "*.ini"`
 sed -i "s/GM_PASSWORD/$GM_PASSWORD/g" `find /data -name "*.ini"`
 sed -i "s/GM_CONNECT_KEY/$GM_CONNECT_KEY/g" `find /data -name "*.ini"`
 sed -i "s/GM_LANDER_VERSION/$GM_LANDER_VERSION/g" `find /data -name "*.ini"`
-
+# 重设supervisor web网页密码
+sed -i "s/^username=.*/username=$WEB_USER/" /etc/supervisord.conf
+sed -i "s/^password=.*/password=$WEB_PASS/" /etc/supervisord.conf
+# 传递环境变量
+SUPERVISORD_ENV="SERVER_GROUP_NAME=\"$SERVER_GROUP_NAME\",CUR_MAIN_DB_HOST=\"$CUR_MAIN_DB_HOST\",CUR_MAIN_DB_PORT=\"$CUR_MAIN_DB_PORT\",CUR_SG_DB_HOST=\"$CUR_SG_DB_HOST\",CUR_SG_DB_PORT=\"$CUR_SG_DB_PORT\""
+sed -i "s/^environment=.*/environment=$SUPERVISORD_ENV/" /etc/supervisord.conf
 cd /root
 # 启动服务
 ./run

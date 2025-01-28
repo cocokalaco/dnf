@@ -1,6 +1,7 @@
 #! /bin/bash
 
 # 检查是否配置MYSQL地址
+echo "CUR_SG_DB_HOST: $CUR_SG_DB_HOST, CUR_SG_DB_PORT: $CUR_SG_DB_PORT"
 if [ -n "$CUR_SG_DB_HOST" ] && [ -n "$CUR_SG_DB_PORT" ]; then
   # 代理本地3307端口并转发
   ./forward --forward 3307/$CUR_SG_DB_HOST:$CUR_SG_DB_PORT/tcp

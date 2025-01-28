@@ -1,24 +1,5 @@
 #! /bin/bash
 
-# 定义主数据库局部变量
-CUR_MAIN_DB_HOST=$MAIN_MYSQL_HOST
-CUR_MAIN_DB_PORT=$MAIN_MYSQL_PORT
-CUR_MAIN_DB_ROOT_PASSWPRD=$MAIN_MYSQL_ROOT_PASSWPRD
-CUR_MAIN_DB_GAME_ALLOW_IP=$MAIN_MYSQL_GAME_ALLOW_IP
-
-# 本地数据库地址配置
-if [ -z "$MAIN_MYSQL_HOST" ] && [ -z "$MAIN_MYSQL_PORT" ] && [ -z "$MYSQL_HOST" ] && [ -z "$MYSQL_PORT" ];then
-  CUR_MAIN_DB_HOST=127.0.0.1
-  CUR_MAIN_DB_PORT=4000
-  CUR_MAIN_DB_ROOT_PASSWPRD=$DNF_DB_ROOT_PASSWORD
-  CUR_MAIN_DB_GAME_ALLOW_IP=127.0.0.1
-fi
-
-# 导出环境变量
-export CUR_MAIN_DB_HOST
-export CUR_MAIN_DB_PORT
-export CUR_MAIN_DB_ROOT_PASSWPRD
-
 # 试图自动获取CUR_MAIN_DB_GAME_ALLOW_IP
 if [ -z "$CUR_MAIN_DB_GAME_ALLOW_IP" ];then
   CUR_MAIN_DB_GAME_ALLOW_IP=$(ip route | awk '/default/ { print $3 }')
@@ -42,7 +23,7 @@ MAIN_DB_LIST=("d_taiwan" "d_channel" "d_guild" "d_taiwan_secu" "d_technical_repo
 for db_name in "${MAIN_DB_LIST[@]}"
 do
     echo "prepare init $db_name....."
-    check_result=$(mysql -h $CUR_MAIN_DB_HOST -P $CUR_MAIN_DB_PORT -u root -p$CUR_MAIN_DB_ROOT_PASSWPRD -e "use $db_name" 2>&1)
+    check_result=$(mysql -h $CUR_MAIN_DB_HOST -P $CUR_MAIN_DB_PORT -u root -p$CUR_MAIN_DB_ROOT_PASSWORD -e "use $db_name" 2>&1)
     error_code=$?
     if [ $error_code -eq 0 ]; then
       echo "main db: $db_name already inited."
@@ -50,7 +31,7 @@ do
       mysql_error_code=$(echo "$check_result" | awk '{print $2}')
       if [ "$mysql_error_code" == "1049" ]; then
           echo "main db: prepare to init remote mysql service dnf data."
-          mysql -h $CUR_MAIN_DB_HOST -P $CUR_MAIN_DB_PORT -u root -p$CUR_MAIN_DB_ROOT_PASSWPRD <<EOF
+          mysql -h $CUR_MAIN_DB_HOST -P $CUR_MAIN_DB_PORT -u root -p$CUR_MAIN_DB_ROOT_PASSWORD <<EOF
           CREATE SCHEMA $db_name DEFAULT CHARACTER SET utf8 ;
           use $db_name;
           source /home/template/init/init_sql/$db_name.sql;
@@ -66,7 +47,7 @@ done
 # 主数据库需要初始化d_taiwan.db_connect中的数据库连接配置
 # 配置game账户权限
 echo "main db: flush privileges....."
-mysql -h $CUR_MAIN_DB_HOST -P $CUR_MAIN_DB_PORT -u root -p$CUR_MAIN_DB_ROOT_PASSWPRD <<EOF
+mysql -h $CUR_MAIN_DB_HOST -P $CUR_MAIN_DB_PORT -u root -p$CUR_MAIN_DB_ROOT_PASSWORD <<EOF
 delete from mysql.user where user='game' and host='$CUR_MAIN_DB_GAME_ALLOW_IP';
 flush privileges;
 grant all privileges on *.* to 'game'@'$CUR_MAIN_DB_GAME_ALLOW_IP' identified by '$DNF_DB_GAME_PASSWORD';
@@ -74,7 +55,7 @@ flush privileges;
 EOF
 # 重置当前大区的主数据库d_taiwan.db_connect表配置
 echo "main_db: reset db_connect config, server_group is $SERVER_GROUP"
-mysql -h $CUR_MAIN_DB_HOST -P $CUR_MAIN_DB_PORT -u root -p$CUR_MAIN_DB_ROOT_PASSWPRD <<EOF
+mysql -h $CUR_MAIN_DB_HOST -P $CUR_MAIN_DB_PORT -u root -p$CUR_MAIN_DB_ROOT_PASSWORD <<EOF
 use d_taiwan;
 update db_connect set db_ip="127.0.0.1", db_port="3306", db_name="d_taiwan", db_passwd="$DEC_GAME_PWD" where db_server_group=$SERVER_GROUP and db_type = 1;
 update db_connect set db_ip="127.0.0.1", db_port="3306", db_name="d_guild", db_passwd="$DEC_GAME_PWD" where db_server_group=$SERVER_GROUP and db_type = 8;
