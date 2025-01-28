@@ -3,8 +3,8 @@ server_type = 0
 channel_no = CHANNEL_NO
 channel_name = ch.CHANNEL_NO
 ip = PUBLIC_IP
-tcp_port = 201CHANNEL_NO
-udp_port = 202CHANNEL_NO
+tcp_port = 100CHANNEL_NO
+udp_port = 110CHANNEL_NO
 
 udp_ip_of_monitor = 127.0.0.1
 udp_port_of_monitor = 30303

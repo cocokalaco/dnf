@@ -3,8 +3,8 @@ server_type = 0
 channel_no = CHANNEL_NO
 channel_name = ch.CHANNEL_NO
 ip = PUBLIC_IP
-tcp_port = 301CHANNEL_NO
-udp_port = 302CHANNEL_NO
+tcp_port = 100CHANNEL_NO
+udp_port = 110CHANNEL_NO
 
 udp_ip_of_monitor = 127.0.0.1
 udp_port_of_monitor = 30303
@@ -25,7 +25,7 @@ udp_port_of_channel = 7000
 tcp_port_of_channel = 7000
 
 exchange_server_ip = 127.0.0.1
-exchange_server_port = 300CHANNEL_NO
+exchange_server_port = 200CHANNEL_NO
 
 udp_ip_of_hades = 127.0.0.1
 udp_port_of_hades = 31003
