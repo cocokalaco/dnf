@@ -1,6 +1,49 @@
 #! /bin/bash
 
+# 大区对应名称
+export SERVER_GROUP_NAME_1="diregie"
+export SERVER_GROUP_NAME_2="cain"
+export SERVER_GROUP_NAME_3="siroco"
+# 去除环境变量前后的单双引号
+export SERVER_GROUP=$(echo $SERVER_GROUP | sed "s/[\'\"]//g")
+export MAIN_MYSQL_HOST=$(echo $MAIN_MYSQL_HOST | sed "s/[\'\"]//g")
+export MAIN_MYSQL_PORT=$(echo $MAIN_MYSQL_PORT | sed "s/[\'\"]//g")
+export MAIN_MYSQL_ROOT_PASSWPRD=$(echo $MAIN_MYSQL_ROOT_PASSWPRD | sed "s/[\'\"]//g")
+export MAIN_MYSQL_GAME_ALLOW_IP=$(echo $MAIN_MYSQL_GAME_ALLOW_IP | sed "s/[\'\"]//g")
+export MYSQL_HOST=$(echo $MYSQL_HOST | sed "s/[\'\"]//g")
+export MYSQL_PORT=$(echo $MYSQL_PORT | sed "s/[\'\"]//g")
+export MYSQL_GAME_ALLOW_IP=$(echo $MYSQL_GAME_ALLOW_IP | sed "s/[\'\"]//g")
+export AUTO_PUBLIC_IP=$(echo $AUTO_PUBLIC_IP | sed "s/[\'\"]//g")
+export PUBLIC_IP=$(echo $PUBLIC_IP | sed "s/[\'\"]//g")
+export GM_ACCOUNT=$(echo $GM_ACCOUNT | sed "s/[\'\"]//g")
+export GM_PASSWORD=$(echo $GM_PASSWORD | sed "s/[\'\"]//g")
+export GM_CONNECT_KEY=$(echo $GM_CONNECT_KEY | sed "s/[\'\"]//g")
+export GM_LANDER_VERSION=$(echo $GM_LANDER_VERSION | sed "s/[\'\"]//g")
+export DNF_DB_ROOT_PASSWORD=$(echo $DNF_DB_ROOT_PASSWORD | sed "s/[\'\"]//g")
+export DNF_DB_GAME_PASSWORD=$(echo $DNF_DB_GAME_PASSWORD | sed "s/[\'\"]//g")
+export WEB_USER=$(echo $WEB_USER | sed "s/[\'\"]//g")
+export WEB_PASS=$(echo $WEB_PASS | sed "s/[\'\"]//g")
+export OPEN_CHANNEL=$(echo $OPEN_CHANNEL | sed "s/[\'\"]//g")
+export DDNS_ENABLE=$(echo $DDNS_ENABLE | sed "s/[\'\"]//g")
+export DDNS_DOMAIN=$(echo $DDNS_DOMAIN | sed "s/[\'\"]//g")
+export DDNS_INTERVAL=$(echo $DDNS_INTERVAL | sed "s/[\'\"]//g")
+export NB_SETUP_KEY=$(echo $NB_SETUP_KEY | sed "s/[\'\"]//g")
+export NB_MANAGEMENT_URL=$(echo $NB_MANAGEMENT_URL | sed "s/[\'\"]//g")
+# 校验用户选择的大区
+SERVER_GROUP_NAME_VAR="SERVER_GROUP_NAME_$SERVER_GROUP"
+SERVER_GROUP_NAME=${!SERVER_GROUP_NAME_VAR}
+if [[ "$SERVER_GROUP" == "1" || "$SERVER_GROUP" == "2" || "$SERVER_GROUP" == "3" ]]; then
+    echo "server group is $SERVER_GROUP, server group name is $SERVER_GROUP_NAME"
+else
+    echo "invalid server group: $SERVER_GROUP"
+    exit -1
+fi
+export SERVER_GROUP_NAME
+echo "will use server group: $SERVER_GROUP_NAME"
+# TODO进行一些强校验,提前退出
+
 # 加密GAME密码
+chmod 777 -R /tmp
 chmod +x /TeaEncrypt
 export DNF_DB_GAME_PASSWORD=${DNF_DB_GAME_PASSWORD:0:8}
 export DEC_GAME_PWD=`/TeaEncrypt $DNF_DB_GAME_PASSWORD`
@@ -14,8 +57,11 @@ rm -rf /var/lib/mysql/*.err
 # 清除MONITOR_PUBLIC_IP文件
 rm -rf /data/monitor_ip/MONITOR_PUBLIC_IP
 # 清理日志
-rm -rf /home/neople/game/log/siroco11/*
-rm -rf /home/neople/game/log/siroco52/*
+for i in {1..52}; do
+    rm -rf /home/neople/game/log/diregie$(printf "%02d" $i)/*
+    rm -rf /home/neople/game/log/cain$(printf "%02d" $i)/*
+    rm -rf /home/neople/game/log/siroco$(printf "%02d" $i)/*
+done
 # 清理/dp2目录
 rm -rf /dp2
 # 重设supervisor web网页密码
@@ -37,17 +83,19 @@ mkdir -p /data/daily_job
 mkdir -p /data/netbird
 # 创建频道目录[存放频道脚本]
 mkdir -p /data/channel
+# 初始化数据
+bash /home/template/init/init.sh
+error_code=$?
+if [ ! $error_code -eq 0 ]; then
+  echo "init failed!!!!!"
+  exit -1
+fi
+# 赋予权限
 if [ $(find /data/conf.d -name "*.conf" | wc -l) -gt 0 ]; then
   echo "Add permissions to the extension configuration."
   chmod 777 /data/conf.d/*.conf
 else
   echo "Extension configuration not set up."
-fi
-# 初始化数据
-bash /home/template/init/init.sh
-error_code=$?
-if [ ! $error_code -eq 0 ]; then
-  exit -1
 fi
 # 删除无用文件
 rm -rf /home/template/neople-tmp

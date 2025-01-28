@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# 检查是否配置主MYSQL地址
+if [ -n "$CUR_MAIN_DB_HOST" ] && [ -n "$CUR_MAIN_DB_PORT" ]; then
+  # 代理本地3306端口并转发
+  ./forward --forward 3306/$CUR_MAIN_DB_HOST:$CUR_MAIN_DB_PORT/tcp
+else
+    echo "no need to start master mysql proxy"
+fi
+# 等待5秒后退出
+sleep 5

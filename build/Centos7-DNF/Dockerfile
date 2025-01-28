@@ -4,6 +4,13 @@ FROM 1995chen/centos:7.9.3-DNF-Base
 MAINTAINER 1995chen
 
 # 定义默认环境变量
+ENV SERVER_GROUP=1
+# 主数据库配置
+ENV MAIN_MYSQL_HOST=''
+ENV MAIN_MYSQL_PORT=''
+ENV MAIN_MYSQL_ROOT_PASSWPRD=88888888
+ENV MAIN_MYSQL_GAME_ALLOW_IP=''
+# 大区数据库配置
 ENV MYSQL_HOST=''
 ENV MYSQL_PORT=''
 ENV MYSQL_GAME_ALLOW_IP=''
@@ -52,6 +59,9 @@ COPY build/dnf_data/Script.tgz /home/template/init/
 ADD build/dnf_data/df_game_r /home/template/init/
 # 初始化脚本
 ADD build/dnf_data/init.sh /home/template/init/
+ADD build/dnf_data/init_local_db.sh /home/template/init/
+ADD build/dnf_data/init_main_db.sh /home/template/init/
+ADD build/dnf_data/init_server_group_db.sh /home/template/init/
 # 网关配置文件
 ADD build/dnf_data/Config.ini /home/template/init/
 # 添加默认DP文件
