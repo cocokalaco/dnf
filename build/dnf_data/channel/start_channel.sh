@@ -23,7 +23,7 @@ done
 MONITOR_PUBLIC_IP=$(cat /data/monitor_ip/MONITOR_PUBLIC_IP 2>/dev/null || true)
 # 生成配置文件
 rm -rf /data/channel/channel.cfg
-cp /home/template/neople/channel/cfg/channel.cfg /data/channel/channel.cfg
+cp /home/template/neople/channel/cfg/$SERVER_GROUP_NAME.cfg /data/channel/channel.cfg
 # 重设PUBLIC_IP和game密码
 sed -i "s/PUBLIC_IP/$MONITOR_PUBLIC_IP/g" /data/channel/channel.cfg
 sed -i "s/GAME_PASSWORD/$DNF_DB_GAME_PASSWORD/g" /data/channel/channel.cfg
