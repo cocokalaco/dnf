@@ -198,7 +198,7 @@ game:
     d_taiwan
 ```
 
-### dbmw_guild
+### dbmw_guild(guild)
 
 * DB中间件作用执行
 * 随着CFG变更，分为3种的DBMW
@@ -214,7 +214,7 @@ dbmw_guild:
     d_taiwan
 ```
 
-### dbmw_mnt
+### dbmw_mnt(monitor)
 
 * DB中间件作用执行
 * 随着CFG变更，分为3种的DBMW
@@ -230,7 +230,7 @@ dbmw_mnt:
     d_taiwan
 ```
 
-### dbmw_stat
+### dbmw_stat(statics)
 
 * DB中间件作用执行
 * 随着CFG变更，分为3种的DBMW
