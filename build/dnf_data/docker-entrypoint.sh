@@ -187,6 +187,18 @@ sed -i "s/^password=.*/password=$WEB_PASS/" /etc/supervisord.conf
 # 传递环境变量
 SUPERVISORD_ENV="SERVER_GROUP_NAME=\"$SERVER_GROUP_NAME\",CUR_MAIN_DB_HOST=\"$CUR_MAIN_DB_HOST\",CUR_MAIN_DB_PORT=\"$CUR_MAIN_DB_PORT\",CUR_SG_DB_HOST=\"$CUR_SG_DB_HOST\",CUR_SG_DB_PORT=\"$CUR_SG_DB_PORT\""
 sed -i "s/^environment=.*/environment=$SUPERVISORD_ENV/" /etc/supervisord.conf
+# 链接server_config.tbl
+rm -rf /home/neople/coserver/table/server_config.tbl
+ln -s /home/neople/coserver/table/$SERVER_GROUP_NAME.tbl /home/neople/coserver/table/server_config.tbl
+rm -rf /home/neople/dbmw_guild/table/server_config.tbl
+ln -s /home/neople/dbmw_guild/table/$SERVER_GROUP_NAME.tbl /home/neople/dbmw_guild/table/server_config.tbl
+rm -rf /home/neople/dbmw_mnt/table/server_config.tbl
+ln -s /home/neople/dbmw_mnt/table/$SERVER_GROUP_NAME.tbl /home/neople/dbmw_mnt/table/server_config.tbl
+rm -rf /home/neople/dbmw_stat/table/server_config.tbl
+ln -s /home/neople/dbmw_stat/table/$SERVER_GROUP_NAME.tbl /home/neople/dbmw_stat/table/server_config.tbl
+rm -rf /home/neople/manager/table/server_config.tbl
+ln -s /home/neople/manager/table/$SERVER_GROUP_NAME.tbl /home/neople/manager/table/server_config.tbl
+# 切换到主目录
 cd /root
 # 启动服务
 ./run
