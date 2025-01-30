@@ -1,4 +1,4 @@
-gc_no = 10CHANNEL_NO
+gc_no = 20CHANNEL_NO
 server_type = 0
 channel_no = CHANNEL_NO
 channel_name = ch.CHANNEL_NO
